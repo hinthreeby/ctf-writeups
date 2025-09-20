@@ -1,0 +1,257 @@
+---
+title: '[LEARNING CRYPTO] - Modular Arithmetic '
+
+---
+
+# Modular Arithmetic
+[TOC]
+## [Greatest Common Divisor](https://cryptohack.org/courses/modular/gcd/)
+**Tóm tắt nội dung**:
+- Bài này nói về ước chung lớn nhất và cách tìm $gcd(a, b)$
+- Có nhiều cách để tính ước số chung lớn nhất (GCD) của hai số, nhưng **thuật toán Euclid** là một trong những cách hiệu quả nhất.
+- Có thể tự xem cách chứng minh tính đúng đắn của thuật toán, dưới đây là triển khai thuật toán bằng Python:
+```python=
+def UCLN(a, b):
+    if b == 0:
+        return a
+    return UCLN(b, a%b)
+
+a, b = 66528, 52920
+print(UCLN(a, b))
+```
+**FLag**:
+```python
+1512
+```
+## [Extended GCD](https://cryptohack.org/courses/modular/egcd/)
+**Tóm tắt nội dung**:
+- Thuật toán Euclid bình thường tìm $gcd(a, b)$ bằng cách sử dụng phép chia dư:
+$$
+\gcd(a, b) = \gcd(a, a \mod b)
+$$
+- Trong thuật toán Euclid mở rộng, ta tính hệ số $u$ và $v$ sao cho:
+$$
+u \cdot a + v \cdot b = \gcd(a, b)
+$$
+**Cách thực hiện tính toán**:
+1. Nếu $b = 0$ thì: $gcd(a, b) = a$ và $u = 1$, $v = 0$
+2. Ngược lại, ta áp dụng đệ quy với:
+$$
+\gcd(a, b) = \gcd(a, a \mod b)
+$$
+Giả sử ta tính được $u1$, $v1$ cho $b$ và $a \mod b$, khi đó:
+$$
+u_1 \cdot b + v_1 \cdot (a \mod b) = \gcd(b, a \mod b)
+$$
+Khi đó, từ $a \mod b=a - q \cdot b$ với $q = a/b$, ta có:
+$$
+a \cdot v_1 + b \cdot (u_1 - q \cdot v_1) = \gcd(a, b)
+$$
+Với nghiệm là:
+$$
+u = v_1, \quad v = u_1 - q \cdot v_1
+$$
+- Có thể tự xem cách chứng minh tính đúng đắn của thuật toán, dưới đây là triển khai thuật toán bằng Python:
+```python=
+def extended_gcd(a, b):
+    if b == 0:
+        return a, 1, 0
+    gcd, u1, v1 = extended_gcd(b, a%b)
+    u = v1
+    v = u1 - (a//b)*v1
+    return gcd, u, v
+
+a, b = 26513, 32321
+
+print(extended_gcd(a, b))
+```
+**FLag**:
+```python
+-8404
+```
+## [Modular Arithmetic 1](https://cryptohack.org/courses/modular/ma0/)
+**Tóm tắt nội dung:**
+- Bài nói về các kiến thức cơ bản trong số học mô-đun.
+- Triển khai thuật toán để tìm ra flag bằng Python:
+```python=
+# 11 = x mod 6
+x = 11 % 6
+
+# 8146798528947 = y mod 17
+y = 8146798528947 % 17
+
+print(min(x, y))
+```
+**FLag**:
+```python
+4
+```
+
+## [Modular Arithmetic 2](https://cryptohack.org/courses/modular/ma1/)
+**Tóm tắt nội dung:**
+- Khi $p$ là một số nguyên tố thì tập hợp $\{0, 1, ..., p - 1\}$ thì tạo thành một trường hữu hạn $F_p$.
+- Khi $n$ không phải là số nguyên tố, tập hợp số nguyên theo module $n$ chỉ là một vành chứ không phải một trường.
+- **Định lý nhỏ Fermat** phát biểu rằng:
+$$
+a^{p-1} \equiv 1 \pmod{p}
+$$
+Dựa theo công thức trên nên ta suy ra được rằng:
+
+**FLag**: `1`
+## [Modular Inverting](https://cryptohack.org/courses/modular/mdiv/)
+**Tóm tắt nội dung:**
+- Với mọi phần tử $g$ trong trường $F_p$ tồn tại duy nhất một số $d$ sao cho:
+$$
+g \cdot d \equiv 1 \pmod{p}
+$$
+- $d$ gọi là nghịch đảo của $g$
+- Để tìm nghịch đảo của $g$ ta có thể áp dụng **Định lý nhỏ Fermat**:
+$$
+a^{p-1} \equiv 1 \pmod{p}
+$$
+- Điều này có thể viết lại như sau:
+$$
+a^{p-2} \equiv a^{-1} \pmod{p}
+$$
+- Cách tìm flag: Thực hiện các bước tính toán (hoặc dùng lệnh trong Python) để tìm giá trị của $3^{11} \mod 13$
+```python=
+flag = pow(3, 11, 13)
+
+print(flag)
+```
+**Flag**: `9`
+## [Quadratic Residues](https://cryptohack.org/courses/modular/root0/)
+**Tóm tắt nội dung:**
+- Ta lấy một số nguyên a = 11 và tính:
+$$
+a^2 \equiv 5 \pmod{29}
+$$
+- Vì: $a = 11$ và $a^2 = 5$  ta nói rằng căn bậc hai của $5$ là $11$.
+- Không phải mọi số đều có căn bậc hai theo module.
+- Có khoảng một nửa số phần tử trong một trường hữu hạn $F_p$ không có căn bậc hai.
+```python=
+p = 29
+ints = [14, 6, 11]
+lists = []
+
+for x in ints:
+    # Lặp từ p đến p - 1
+    for a in range(1, 29):
+        if (a*a) % p == x:
+            print(a)
+            # Để chọn min theo yêu cầu để bài để tìm ra flag
+            break 
+```
+**Flag**: `8`
+## [Legendre Symbol](https://cryptohack.org/courses/modular/root1/)
+**Tóm tắt nội dung:**
+- Ký hiệu Legendre cho chúng ta một cách hiệu quả để xác định một số nguyên có phải là số dư bậc hai theo mô đun **một số nguyên tố lẻ $p$** hay không:
+$$
+\frac{a}{p} = a^\frac{p-1}{2} \pmod{p}
+$$
+- Nếu $a/p = 1$ thì $a$ có tồn tại số dư bậc hai theo module $p$ và $a \not\equiv 0 \pmod{p}$
+- Nếu $a/p = -1$ thì $a$ không có số dư bậc hai theo module $p$.
+- Nếu $a/p = 0$ thì $a \equiv 0 \pmod{p}$
+
+```python=
+p = 101524035174539890485408575671085261788758965189060164484385690801466167356667036677932998889725476582421738788500738738503134356158197247473850273565349249573867251280253564698939768700489401960767007716413932851838937641880157263936985954881657889497583485535527613578457628399173971810541670838543309159139
+
+ints = [25081841204695904475894082974192007718642931811040324543182130088804239047149283334700530600468528298920930150221871666297194395061462592781551275161695411167049544771049769000895119729307495913024360169904315078028798025169985966732789207320203861858234048872508633514498384390497048416012928086480326832803, 45471765180330439060504647480621449634904192839383897212809808339619841633826534856109999027962620381874878086991125854247108359699799913776917227058286090426484548349388138935504299609200377899052716663351188664096302672712078508601311725863678223874157861163196340391008634419348573975841578359355931590555, 17364140182001694956465593533200623738590196990236340894554145562517924989208719245429557645254953527658049246737589538280332010533027062477684237933221198639948938784244510469138826808187365678322547992099715229218615475923754896960363138890331502811292427146595752813297603265829581292183917027983351121325, 14388109104985808487337749876058284426747816961971581447380608277949200244660381570568531129775053684256071819837294436069133592772543582735985855506250660938574234958754211349215293281645205354069970790155237033436065434572020652955666855773232074749487007626050323967496732359278657193580493324467258802863, 4379499308310772821004090447650785095356643590411706358119239166662089428685562719233435615196994728767593223519226235062647670077854687031681041462632566890129595506430188602238753450337691441293042716909901692570971955078924699306873191983953501093343423248482960643055943413031768521782634679536276233318, 85256449776780591202928235662805033201684571648990042997557084658000067050672130152734911919581661523957075992761662315262685030115255938352540032297113615687815976039390537716707854569980516690246592112936796917504034711418465442893323439490171095447109457355598873230115172636184525449905022174536414781771, 50576597458517451578431293746926099486388286246142012476814190030935689430726042810458344828563913001012415702876199708216875020997112089693759638454900092580746638631062117961876611545851157613835724635005253792316142379239047654392970415343694657580353333217547079551304961116837545648785312490665576832987, 96868738830341112368094632337476840272563704408573054404213766500407517251810212494515862176356916912627172280446141202661640191237336568731069327906100896178776245311689857997012187599140875912026589672629935267844696976980890380730867520071059572350667913710344648377601017758188404474812654737363275994871, 4881261656846638800623549662943393234361061827128610120046315649707078244180313661063004390750821317096754282796876479695558644108492317407662131441224257537276274962372021273583478509416358764706098471849536036184924640593888902859441388472856822541452041181244337124767666161645827145408781917658423571721, 18237936726367556664171427575475596460727369368246286138804284742124256700367133250078608537129877968287885457417957868580553371999414227484737603688992620953200143688061024092623556471053006464123205133894607923801371986027458274343737860395496260538663183193877539815179246700525865152165600985105257601565]
+
+ans = 0
+
+for a in ints:
+    legendre = pow(a, (p-1)//2, p)
+    if legendre == 1:
+        sqrt_a = pow(a, (p+1)//4, p)
+        ans = max(ans, sqrt_a)
+
+print(ans)
+```
+**Flag**:
+```python
+93291799125366706806545638475797430512104976066103610269938025709952247020061090804870186195285998727680200979853848718589126765742550855954805290253592144209552123062161458584575060939481368210688629862036958857604707468372384278049741369153506182660264876115428251983455344219194133033177700490981696141526
+```
+## [Modular Square Root](https://cryptohack.org/courses/modular/tonelli-shanks/)
+**Tóm tắt nội dung:**
+- Bài này nói về bài toán tìm căn bậc hai modulo một số nguyên tố $p$ sao cho:
+$$
+r^2 \equiv a \pmod{p}
+$$
+- Bước 1: Kiểm tra xem $a$ có phải là **quadratic residue** không bằng **Legendre Symbol**:
+$$
+\frac{a}{p} = a^\frac{p-1}{2} \pmod{p}
+$$
+- Nếu kết quả là 1, tiếp tục.
+- Nếu kết quả là -1, thì không tồn tại căn bậc hai, trả về "No solution".
+- Bước 2: Do $p$ là số nguyên tố rất lớn, kiểm tra $p \equiv 1 \pmod{4}$ hay $p \equiv 3 \pmod{4}$:
+    + Nếu $p \equiv 3 \pmod{4}$: 
+$$
+r = a^\frac{p+1}{4} \pmod{p}
+$$
+    + Nếu $p \equiv 1 \pmod{4}$: dùng Tonelli-Shanks để tìm nghiệm $r$
+    
+**Lưu ý**: 
+- **Tonelli-Shanks** không hoạt động với modulo hợp số (số không phải là số nguyên tố). Tìm căn bậc hai theo modulo một hợp số có độ phức tạp tương đương với phân tích thừa số nguyên tố, tức là một bài toán khó.
+- Ứng dụng chính của thuật toán này là tìm tọa độ trên **đường cong elliptic**. Vì cách hoạt động của thuật toán khá phức tạp, chúng ta sẽ không đi vào chi tiết, tuy nhiên các triển khai của nó rất dễ tìm, và **Sage** đã tích hợp sẵn một phiên bản.
+
+**Solution**:
+Vì $a$ và $p$ đề bài cho rất lớn nên tôi sử dụng [SageMathCell online](https://https://sagecell.sagemath.org/?q=iyqcsn)
+```python=
+a = 8479994658316772151941616510097127087554541274812435112009425778595495359700244470400642403747058566807127814165396640215844192327900454116257979487432016769329970767046735091249898678088061634796559556704959846424131820416048436501387617211770124292793308079214153179977624440438616958575058361193975686620046439877308339989295604537867493683872778843921771307305602776398786978353866231661453376056771972069776398999013769588936194859344941268223184197231368887060609212875507518936172060702209557124430477137421847130682601666968691651447236917018634902407704797328509461854842432015009878011354022108661461024768
+p = 30531851861994333252675935111487950694414332763909083514133769861350960895076504687261369815735742549428789138300843082086550059082835141454526618160634109969195486322015775943030060449557090064811940139431735209185996454739163555910726493597222646855506445602953689527405362207926990442391705014604777038685880527537489845359101552442292804398472642356609304810680731556542002301547846635101455995732584071355903010856718680732337369128498655255277003643669031694516851390505923416710601212618443109844041514942401969629158975457079026906304328749039997262960301209158175920051890620947063936347307238412281568760161
+sqrt_a = Mod(a, p).sqrt()
+print(sqrt_a)
+
+```
+**Flag**: 
+```python
+2362339307683048638327773298580489298932137505520500388338271052053734747862351779647314176817953359071871560041125289919247146074907151612762640868199621186559522068338032600991311882224016021222672243139362180461232646732465848840425458257930887856583379600967761738596782877851318489355679822813155123045705285112099448146426755110160002515592418850432103641815811071548456284263507805589445073657565381850521367969675699760755310784623577076440037747681760302434924932113640061738777601194622244192758024180853916244427254065441962557282572849162772740798989647948645207349737457445440405057156897508368531939120
+```
+## [Chinese Remainder Theorem](https://cryptohack.org/courses/modular/crt1/)
+**Tóm tắt nội dung**:
+- Định lý số dư Trung Hoa (Chinese Remainder Theorem - CRT) cho phép chúng ta giải một hệ phương trình đồng dư với các mô-đun là các số nguyên tố cùng nhau $gcd = 1$.
+**Cách thức hoạt động:**
+- Cho hệ các phương trình đồng dư:
+$$ 
+x_1 \equiv a_1 \pmod{n_1}
+$$
+$$
+x_2 \equiv a_2 \pmod{n_2}
+$$
+$$ 
+x_n \equiv a_n \pmod{n_n}
+$$
+- Nếu $\{n_1, n_2,...,n_n\}$ là các số nguyên tố cùng nhau, thì hệ này có một nghiệm duy nhất theo modulo $N$:
+$$
+N = n_1 \times n_2 \times n_3 \times \dots \times n_n
+$$
+**Cách giải:**
+1. Tính tích của các module: $N = n_1 \times n_2 \times n_3 \times \dots \times n_n$
+2. Tính mỗi $N_i = \frac{N}{n_i}$
+3. Tìm nghịch đảo $M_i$ của $N_i$ theo module $n_i$
+4. Tính $x$ theo công thức:
+$$
+x = \left( \sum \left(a_i \times N_i \times M_i \right) \right) \mod N
+$$
+```python=
+def Nghich_Dao_Module(a, p):
+    return pow(a, p-2, p)
+
+n = [5, 11, 17]
+a = [2, 3, 5]
+P = 5 * 11 * 17
+N = [P//5, P//11, P//17]
+M = []
+res = 0
+
+for i in range(3):
+    M.append(Nghich_Dao_Module(N[i], n[i]))
+
+for i in range(3):
+    res += a[i]*N[i]*M[i]
+
+print(res % P)
+```
+**Flag**: `872`
+
